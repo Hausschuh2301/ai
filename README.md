@@ -28,33 +28,31 @@ Dieses Projekt ist eine **persönliche KI**, die:
 ```bash
 git clone https://github.com/dein-user/KI.git
 cd KI
-2️⃣ Virtuelle Umgebung erstellen
-bash
+```
+### 2️⃣ Virtuelle Umgebung erstellen
 Code kopieren
+```bash
 python -m venv .venv
-3️⃣ Virtuelle Umgebung aktivieren
-Windows (PowerShell)
-powershell
-Code kopieren
-.venv\Scripts\Activate.ps1
-Windows (CMD)
-cmd
-Code kopieren
+```
+### 3️⃣ Virtuelle Umgebung aktivieren
+#### Windows (PowerShell)
+```
 .venv\Scripts\activate.bat
-Linux / macOS
-bash
-Code kopieren
+```
+#### Linux / macOS
+```bash
 source .venv/bin/activate
-4️⃣ Abhängigkeiten installieren
-bash
-Code kopieren
+```
+### 4️⃣ Abhängigkeiten installieren
+```bash
 pip install --upgrade pip
 pip install -r requirements.txt
-Konfiguration
-config.json erstellen (falls nicht vorhanden):
+```
 
-json
-Code kopieren
+## Konfiguration
+###### config.json erstellen (falls nicht vorhanden):
+
+```json
 {
   "rules": [
     {
@@ -71,23 +69,24 @@ Code kopieren
   "k": 3,
   "serpapi_key": "DEIN_SERPAPI_KEY_HIER"
 }
-Dokumente, die die KI nutzen soll, in den Ordner data/ legen.
+```
++ Dokumente, die die KI nutzen soll, in den Ordner data/ legen.
 
-Nutzung
+## Nutzung
 app.py starten:
 
-bash
-Code kopieren
+```bash
 python app.py
-Fragen direkt im Terminal stellen.
+```
++ Fragen direkt im Terminal stellen.
 
-Zum Beenden einfach exit eingeben.
++ Zum Beenden einfach ```exit``` eingeben.
 
-Hinweise
-Ollama Model: Stelle sicher, dass das Model lokal vorhanden ist (llama3.2).
+## Hinweise
+- Ollama Model: Stelle sicher, dass das Model lokal vorhanden ist (llama3.2).
 
-SerpAPI: Für Internetabfragen musst du einen kostenlosen API-Key von https://serpapi.com eintragen.
+- SerpAPI: Für Internetabfragen musst du einen kostenlosen API-Key von https://serpapi.com eintragen.
 
-Regeln: Inhalte wie „Menschen töten“ oder „Drogen herstellen“ werden automatisch blockiert.
+- Regeln: Inhalte wie „Menschen töten“ oder „Drogen herstellen“ werden automatisch blockiert.
 
-Daten: Nutze nur eigene oder lizenzfreie Dokumente.
+- Daten: Nutze nur eigene oder lizenzfreie Dokumente.
