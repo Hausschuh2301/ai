@@ -1,25 +1,29 @@
 import os
 import json
-from langchain_community.document_loaders import TextLoader, DirectoryLoader
-from langchain_community.vectorstores import Chroma
 from langchain_ollama import OllamaEmbeddings, OllamaLLM
+from langchain_community.vectorstores import Chroma
 from langchain.chains import RetrievalQA
+from langchain.document_loaders import DirectoryLoader
+from google_search_results import GoogleSearchResults
 
-# Konfiguration
-MODEL_NAME = "llama3.2"
-DATA_FOLDER = "meine_daten"
-DB_DIR = "chroma_db"
-CONFIG_FILE = "config.json"
+# ------------------------
+# KONFIGURATION
+# ------------------------
+MODEL_NAME = "llama3"
+DATA_FOLDER = "./data"
+DB_DIR = "./db"
+CONFIG_FILE = "./config.json"
+SERPAPI_KEY = "DEIN_SERPAPI_KEY_HIER"  # Trage hier deinen SerpAPI Key ein
 
+# ------------------------
+# PersonalAI Klasse
+# ------------------------
 class PersonalAI:
-    def __init__(self, model_name, data_folder, db_dir, config_file):
+    def __init__(self, model_name, data_folder, db_dir, api_key):
         self.model_name = model_name
         self.data_folder = data_folder
         self.db_dir = db_dir
-        self.config_file = config_file
-
-        print("[INFO] Lade Konfiguration...")
-        self.load_config()
+        self.api_key = api_key
 
         print("[INFO] Ollama LLM initialisieren...")
         self.llm = OllamaLLM(model=self.model_name)
@@ -32,64 +36,76 @@ class PersonalAI:
 
         self._ensure_db()
 
-    def load_config(self):
-        if os.path.exists(self.config_file):
-            with open(self.config_file, "r", encoding="utf-8") as f:
-                self.config = json.load(f)
-        else:
-            # Standard-Regeln
-            self.config = {
-                "rules": [
-                    {"id": "no_kill", "description": "Töte keine Menschen",
-                     "pattern": ["töte", "morde", "ermorde", "kill", "getöte"]},
-                    {"id": "no_illicit_drugs", "description": "Keine Anleitung zur Herstellung illegaler Drogen",
-                     "pattern": ["drogen herstellen", "herstellung von drogen", "meth herstellen"]}
-                ],
-                "k": 3
-            }
-
     def _ensure_db(self):
         # Lade Dokumente aus dem Datenordner
-        loader = DirectoryLoader(self.data_folder, glob="*.txt", loader_cls=TextLoader)
+        loader = DirectoryLoader(self.data_folder)
         docs = loader.load()
-        if docs:
-            print(f"[INFO] Indexiere {len(docs)} Dokumente...")
+
+        if not docs:
+            print("[INFO] Leere DB - initialer Import wird gestartet.")
             self.db.add_documents(docs)
         else:
-            print("[WARN] Keine Dokumente zum Indexieren gefunden.")
+            print("[INFO] Chroma DB geladen (existierende Einträge vorhanden).")
 
-        # Erstelle Retriever
-        self.retriever = self.db.as_retriever(search_kwargs={"k": self.config.get("k", 3)})
-
-        # Erstelle RetrievalQA Chain
-        print("[INFO] Retrieval Chain initialisieren...")
+        # Setup Retrieval Chain mit invoke()-Methode
         self.qa_chain = RetrievalQA.from_chain_type(
             llm=self.llm,
-            retriever=self.retriever,
+            retriever=self.db.as_retriever(search_kwargs={"k": 3}),
             return_source_documents=True
         )
 
+    def search_online(self, query):
+        """Sucht online mit SerpAPI und gibt die Ergebnisse zurück."""
+        params = {
+            "q": query,
+            "hl": "de",
+            "gl": "de",
+            "api_key": self.api_key
+        }
+        search = GoogleSearchResults(params)
+        results = search.get_dict()
+        hits = results.get("organic_results", [])
+        return [(item.get("title"), item.get("link")) for item in hits[:5]]  # Top 5 Ergebnisse
+
     def ask(self, question):
-        # Benutze invoke() anstelle von run()
-        result = self.qa_chain.invoke({"query": question})
-        antwort = result.get("result", "")
-        quellen = result.get("source_documents", [])
-        return antwort, quellen
+        """Versuche zuerst lokal, falls nichts gefunden wird → online suchen."""
+        # Lokale Suche mit invoke()
+        try:
+            output = self.qa_chain.invoke({"query": question})
+            result_text = output.get("result", "").strip()
+            if result_text:
+                return result_text
+        except Exception as e:
+            print(f"[WARN] Fehler bei lokaler Suche: {e}")
 
+        # Online-Suche, falls lokal nichts gefunden
+        online_results = self.search_online(question)
+        if online_results:
+            response = "Ich konnte keine lokale Antwort finden. Hier sind einige Online-Ergebnisse:\n"
+            for i, (title, link) in enumerate(online_results, start=1):
+                response += f"{i}. {title} - {link}\n"
+            return response
+        else:
+            return "Keine Antwort gefunden, weder lokal noch online."
 
+# ------------------------
+# MAIN
+# ------------------------
 def main():
-    ai = PersonalAI(model_name=MODEL_NAME, data_folder=DATA_FOLDER, db_dir=DB_DIR, config_file=CONFIG_FILE)
+    ai = PersonalAI(
+        model_name=MODEL_NAME,
+        data_folder=DATA_FOLDER,
+        db_dir=DB_DIR,
+        api_key=SERPAPI_KEY
+    )
 
     print("\nDeine persönliche KI läuft. Tippe 'exit' zum Beenden.\n")
     while True:
-        question = input("Deine Frage: ")
+        question = input("Deine Frage: ").strip()
         if question.lower() == "exit":
             break
-        answer, sources = ai.ask(question)
-        print("Antwort:", answer)
-        if sources:
-            print("Quellen:", [s.metadata.get("source", "Unbekannt") for s in sources])
-
+        answer = ai.ask(question)
+        print("\nAntwort:\n", answer, "\n")
 
 if __name__ == "__main__":
     main()
