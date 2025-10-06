@@ -1,6 +1,6 @@
- Persönliche KI mit Python
+# KI mit Python
 
-Dieses Projekt ist eine **persönliche KI**, die:
+Dieses Projekt ist eine **KI**, die:
 - Dokumente aus einem Ordner indexiert,
 - Fragen beantwortet,
 - und optional das Internet über Google Search (SerpAPI) einbezieht.
