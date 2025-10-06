@@ -1,0 +1,11 @@
+{
+  "rules": [
+    { "id": "no_kill",
+      "description": "Töte keine Menschen",
+      "pattern": ["töte", "morde", "ermorde", "kill", "getöte"] },
+    { "id": "no_illicit_drugs",
+      "description": "Keine Anleitung zur Herstellung illegaler Drogen",
+      "pattern": ["drogen herstellen", "herstellung von drogen", "meth herstellen"] }
+  ],
+  "k": 3
+}
