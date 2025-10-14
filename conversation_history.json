@@ -1,0 +1,14 @@
+[
+  {
+    "timestamp": "2025-10-07T16:59:17.502531",
+    "question": "hey",
+    "answer": "Hey! Wie kann ich dir helfen?",
+    "sources_used": 0
+  },
+  {
+    "timestamp": "2025-10-07T16:59:31.973307",
+    "question": "programmiere mir ein Skript",
+    "answer": "Entschuldigung, aber ohne weitere Informationen über das Skript, das du haben möchtest, kann ich dir nicht helfen.\n\nKönntest du mir bitte mehr Details geben? Zum Beispiel:\n\n* Welches Programmierungsland oder -sprache möchtest du verwenden (z.B. Python, JavaScript, Bash)?\n* Was soll das Skript tun (z.B. Dateien verwalten, Daten aus einer Datenbank abrufen, eine bestimmte Aufgabe automatisieren)?\n* Gibt es bestimmte Anforderungen oder Einschränkungen, die ich berücksichtigen sollte?\n\nJe mehr Informationen du mir gibst, desto besser kann ich dir helfen.",
+    "sources_used": 0
+  }
+]
